@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Session;
 use App\Http\Requests\UsersEditRequest;
 use App\Photo;
 use App\Http\Requests\UsersRequest;
@@ -128,7 +129,7 @@ class AdminUsersController extends Controller
        }
        else
        {
-           $input = $request::all();
+           $input = $request->all();
 
            $input['password'] = bcrypt($request->password);
        }
@@ -160,5 +161,14 @@ class AdminUsersController extends Controller
     public function destroy($id)
     {
         //
+        $user = User::findOrFail($id);
+
+        unlink(public_path() . $user->photo->file);
+
+        $user->delete();
+
+        Session::flash('deleted_user', 'The user has been deleted');
+
+        return redirect('/admin/users');
     }
 }
